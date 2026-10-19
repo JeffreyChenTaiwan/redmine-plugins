@@ -1,0 +1,27 @@
+en:
+  label_due_date_protection_settings: Due Date Protection Settings
+  label_due_date_protection: Due Date Protection
+  label_protection_status: Protection Status
+  label_protection_on: "Enabled"
+  label_protection_off: "Disabled"
+  label_enable_due_date_protection: Enable due date protection
+  label_global_authorized_users: Global Authorized Users
+  label_global_authorized_groups: Global Authorized Groups
+  label_project_specific_protection: Project Specific Protection
+  label_authorized_users: Authorized Users
+  label_authorized_groups: Authorized Groups
+  label_select_user: Select User
+  label_select_group: Select Group
+  label_due_date_protected: Due Date Protected
+  button_add_user: Add User
+  button_add_group: Add Group
+  button_delete: Delete
+  text_protection_explanation: When enabled, ONLY authorized users and group members can modify the due date once it has been set.
+  text_global_users_explanation: These users can modify due dates on all issues across all projects.
+  text_global_groups_explanation: Members of these groups can modify due dates on all issues across all projects.
+  text_project_protection_explanation: Configure project-specific authorized users and groups to modify due dates.
+  text_due_date_modification_restricted: Due date modification is restricted
+  text_due_date_protected: This due date is protected
+  error_due_date_modification_not_permitted: You are not authorized to modify the due date for this issue.
+  notice_save_failed: Save failed
+  permission_modify_due_date: Modify due date

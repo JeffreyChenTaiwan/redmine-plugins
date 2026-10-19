@@ -1,0 +1,22 @@
+# plugins/redmine_autoassign_configurable/config/locales/ja.yml
+ja:
+  label_autoassign_settings: 自動割り当て設定
+  label_autoassign_rules: 自動割り当てルール
+  label_status: ステータス
+  label_assign_to: 担当者
+  label_author: 原作成者
+  label_manager: プロジェクト管理者
+  label_last_updater: 最終更新者
+  label_notifications: 通知メッセージ
+  label_english: 英語
+  label_chinese_traditional: 繁体字中国語
+  label_chinese_simplified: 簡体字中国語
+  label_japanese: 日本語
+  button_add_rule: ルールを追加
+  button_delete: 削除
+  button_split_statuses: 個別ルールに分割
+  text_comma_separated: カンマ区切り値、大文字小文字を区別しない
+  text_single_status: 単一のステータス名を選択してください
+  text_use_name_placeholder: 担当者名のプレースホルダとして {name} を使用
+  text_status_rule_explanation: 各ルールは、ステータスが完全に一致すると、問題を特定のユーザーに割り当てます。最良の結果を得るには、各ステータスに対して個別のルールを作成してください。
+  text_split_status_tooltip: この複数ステータスのルールを個別のルールに分割する

@@ -1,0 +1,7 @@
+<%# plugins/redmine_default_watchers/app/views/redmine_default_watchers/index.html.erb %>
+<h2><%= l(:label_default_watchers_settings) %></h2>
+
+<%= form_tag url_for(controller: 'redmine_default_watchers', action: 'save'), method: :post do %>
+  <%= render partial: 'settings/redmine_default_watchers_settings' %>
+  <p><%= submit_tag l(:button_save) %></p>
+<% end %>

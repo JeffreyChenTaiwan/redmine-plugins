@@ -1,0 +1,27 @@
+zh-TW:
+  label_due_date_protection_settings: 到期日保護設定
+  label_due_date_protection: 到期日保護
+  label_protection_status: 保護狀態
+  label_protection_on: "開啟"
+  label_protection_off: "關閉"
+  label_enable_due_date_protection: 啟用到期日保護
+  label_global_authorized_users: 全域授權使用者
+  label_global_authorized_groups: 全域授權群組
+  label_project_specific_protection: 專案特定保護
+  label_authorized_users: 授權使用者
+  label_authorized_groups: 授權群組
+  label_select_user: 選擇使用者
+  label_select_group: 選擇群組
+  label_due_date_protected: 到期日已保護
+  button_add_user: 新增使用者
+  button_add_group: 新增群組
+  button_delete: 刪除
+  text_protection_explanation: 設為開啟後，只有授權的使用者和群組成員可以修改已設定的到期日。
+  text_global_users_explanation: 這些使用者可以修改所有專案中所有問題的到期日。
+  text_global_groups_explanation: 這些群組的成員可以修改所有專案中所有問題的到期日。
+  text_project_protection_explanation: 設定專案特定的授權使用者和群組以修改到期日。
+  text_due_date_modification_restricted: 到期日修改受限
+  text_due_date_protected: 此到期日已受保護
+  error_due_date_modification_not_permitted: 您未獲授權修改此問題的到期日。
+  notice_save_failed: 儲存失敗
+  permission_modify_due_date: 修改到期日

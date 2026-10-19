@@ -1,0 +1,22 @@
+# plugins/redmine_autoassign_configurable/config/locales/en.yml
+en:
+  label_autoassign_settings: Auto-assign Settings
+  label_autoassign_rules: Auto-assignment Rules
+  label_status: Status
+  label_assign_to: Assign To
+  label_author: Original Author
+  label_manager: Project Manager
+  label_last_updater: Last Updater
+  label_notifications: Notification Messages
+  label_english: English
+  label_chinese_traditional: Traditional Chinese
+  label_chinese_simplified: Simplified Chinese
+  label_japanese: Japanese
+  button_add_rule: Add Rule
+  button_delete: Delete
+  button_split_statuses: Split into Individual Rules
+  text_comma_separated: Comma-separated values, case-insensitive
+  text_single_status: Enter a single status name
+  text_use_name_placeholder: Use {name} as placeholder for assignee name
+  text_status_rule_explanation: Each rule will assign issues to a specific user when the status matches exactly. For best results, create a separate rule for each status.
+  text_split_status_tooltip: Split this multi-status rule into individual rules

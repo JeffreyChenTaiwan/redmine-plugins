@@ -1,0 +1,65 @@
+<%# plugins/redmine_default_watchers/app/views/hooks/redmine_default_watchers/_issues_form_details_bottom.html.erb %>
+<% if @issue.new_record? %>
+  <%
+    settings = Setting.plugin_redmine_default_watchers || {}
+    global_watchers = settings['global_watchers'] || []
+    project_watchers = settings['project_watchers'] || {}
+    project_specific_watchers = project_watchers[@issue.project_id.to_s] || []
+    all_watcher_ids = (global_watchers + project_specific_watchers).uniq.compact
+    
+    default_watcher_users = []
+    watcher_sources = {}  # 用於追踪觀察者來源（使用者或群組）
+    
+    all_watcher_ids.each do |watcher_id|
+      if watcher_id.start_with?('user:')
+        user_id = watcher_id.split(':')[1]
+        user = User.find_by_id(user_id)
+        if user && user.active? && user.allowed_to?(:view_issues, @issue.project)
+          default_watcher_users << user
+          watcher_sources[user.id] = { type: 'user', name: user.name }
+        end
+      elsif watcher_id.start_with?('group:')
+        group_id = watcher_id.split(':')[1]
+        group = Group.find_by_id(group_id)
+        if group
+          group.users.active.each do |user|
+            if user.allowed_to?(:view_issues, @issue.project)
+              unless default_watcher_users.include?(user)
+                default_watcher_users << user
+                watcher_sources[user.id] = { type: 'group', name: group.name }
+              end
+            end
+          end
+        end
+      end
+    end
+  %>
+  
+  <% if default_watcher_users.any? %>
+    <div id="default-watchers-info" style="margin: 10px 0; padding: 10px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 3px;">
+      <h4 style="margin-top: 0;"><%= l(:label_auto_watchers_will_be_added) %></h4>
+      <ul style="margin-bottom: 0;">
+        <% default_watcher_users.each do |user| %>
+          <% source = watcher_sources[user.id] %>
+          <li>
+            <%= user.name %> (<%= user.login %>)
+            <% if source[:type] == 'group' %>
+              <em style="color: #666;"> - <%= l(:text_via_group, :group => source[:name]) %></em>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+<% end %>
+
+<script>
+$(document).ready(function() {
+  // 當建立新問題時，自動選中預設觀察者
+  <% if @issue.new_record? && defined?(default_watcher_users) && default_watcher_users.any? %>
+    <% default_watcher_users.each do |user| %>
+      $('#issue_watcher_user_ids_<%= user.id %>').prop('checked', true);
+    <% end %>
+  <% end %>
+});
+</script>

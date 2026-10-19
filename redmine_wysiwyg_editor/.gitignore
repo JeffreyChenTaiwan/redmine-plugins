@@ -1,0 +1,22 @@
+/node_modules
+*~
+*.bak
+
+/_data
+
+# Local data, credentials and development artifacts
+.env
+.env.*
+!.env.example
+node_modules/
+_data/
+log/
+tmp/
+coverage/
+*.log
+*.bak
+*.backup
+*~
+init-org.rb
+init-ok*.rb
+.DS_Store

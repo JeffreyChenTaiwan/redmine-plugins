@@ -1,0 +1,2 @@
+<%# plugins/redmine_autoassign_configurable/app/views/redmine_autoassign/new_rule.js.erb %>
+$('#autoassign-rules').append('<%= j render(partial: "settings/rule", locals: { rule: @rule, index: @index, user_options: @user_options, available_statuses: @available_statuses }) %>');

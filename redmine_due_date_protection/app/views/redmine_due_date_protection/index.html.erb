@@ -1,0 +1,5 @@
+<h2><%= l(:label_due_date_protection_settings) %></h2>
+<%= form_tag url_for(controller: 'redmine_due_date_protection', action: 'save'), method: :post do %>
+  <%= render partial: 'settings/redmine_due_date_protection_settings' %>
+  <p><%= submit_tag l(:button_save) %></p>
+<% end %>

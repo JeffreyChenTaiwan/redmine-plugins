@@ -1,0 +1,19 @@
+# plugins/redmine_default_watchers/config/locales/ja.yml
+ja:
+  label_default_watchers_settings: デフォルト監視者設定
+  label_default_watchers: デフォルト監視者
+  label_global_default_watchers: グローバルデフォルト監視者
+  label_project_specific_watchers: プロジェクト固有監視者
+  label_watcher: 監視者
+  label_select_user: ユーザーを選択
+  label_select_user_or_group: ユーザーまたはグループを選択
+  label_users: ユーザー
+  label_groups: グループ
+  label_auto_watchers_will_be_added: "デフォルト監視者が自動的に追加されます："
+  button_add_watcher: 監視者を追加
+  button_delete: 削除
+  text_global_watchers_explanation: これらのユーザーとグループは、すべてのプロジェクトの新しいチケットの監視者として自動的に追加されます。
+  text_project_watchers_explanation: これらのユーザーとグループは、特定のプロジェクトの新しいチケットの監視者として自動的に追加されます。
+  text_project_default_watchers_explanation: これらのユーザーとグループは、このプロジェクトのすべての新しいチケットの監視者として自動的に追加されます。
+  text_via_group: "グループ %{group} 経由"
+  error_adding_watcher: 監視者の追加中にエラーが発生しました

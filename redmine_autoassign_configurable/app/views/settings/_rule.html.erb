@@ -1,0 +1,28 @@
+<%# plugins/redmine_autoassign_configurable/app/views/settings/_rule.html.erb %>
+<div class="rule-row">
+  <div class="splitcontent rule-content">
+    <div class="splitcontentleft">
+      <p>
+        <label><%= l(:label_status) %></label>
+        <%= select_tag "settings[rules][][status]",
+              options_from_collection_for_select(available_statuses, 'name', 'name', rule['status']),
+              class: 'rule-status-field' %>
+      </p>
+    </div>
+
+    <div class="splitcontentright">
+      <p>
+        <label><%= l(:label_assign_to) %></label>
+        <%= select_tag "settings[rules][][assign_to]",
+              options_for_select(user_options, rule['assign_to']),
+              class: 'rule-assign-field' %>
+      </p>
+    </div>
+  </div>
+
+  <p class="buttons rule-buttons">
+    <%= link_to l(:button_delete), '#', class: 'icon icon-del delete-rule' %>
+  </p>
+
+  <hr class="rule-separator" />
+</div>

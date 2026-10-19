@@ -1,0 +1,19 @@
+# plugins/redmine_default_watchers/config/locales/zh-TW.yml
+zh-TW:
+  label_default_watchers_settings: 預設觀察者設定
+  label_default_watchers: 預設觀察者
+  label_global_default_watchers: 全域預設觀察者
+  label_project_specific_watchers: 專案特定觀察者
+  label_watcher: 觀察者
+  label_select_user: 選擇使用者
+  label_select_user_or_group: 選擇使用者或群組
+  label_users: 使用者
+  label_groups: 群組
+  label_auto_watchers_will_be_added: "預設觀察者將自動被新增："
+  button_add_watcher: 新增觀察者
+  button_delete: 刪除
+  text_global_watchers_explanation: 這些使用者和群組將自動新增為所有專案中新問題的觀察者。
+  text_project_watchers_explanation: 這些使用者和群組將自動新增為特定專案中新問題的觀察者。
+  text_project_default_watchers_explanation: 這些使用者和群組將自動新增為此專案中所有新問題的觀察者。
+  text_via_group: "透過群組 %{group}"
+  error_adding_watcher: 新增觀察者時發生錯誤

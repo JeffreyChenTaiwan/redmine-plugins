@@ -1,0 +1,93 @@
+<%# plugins/redmine_due_date_protection/app/views/hooks/redmine_due_date_protection/_issues_form_details_bottom.html.erb %>
+<%
+  settings = Setting.plugin_redmine_due_date_protection || {}
+  protection_enabled = (settings['protection_enabled'] == '1')
+  
+  can_modify = false
+  
+  if protection_enabled
+    global_users = (settings['global_authorized_users'] || []).map(&:to_i)
+    global_groups = (settings['global_authorized_groups'] || []).map(&:to_i)
+    
+    project_settings = settings['project_settings'] || {}
+    project_config = project_settings[@issue.project_id.to_s] || {}
+    project_users = (project_config['authorized_users'] || []).map(&:to_i)
+    project_groups = (project_config['authorized_groups'] || []).map(&:to_i)
+    
+    authorized_user_ids = (global_users + project_users).uniq
+    authorized_group_ids = (global_groups + project_groups).uniq
+    user_group_ids = User.current.groups.pluck(:id)
+    
+    # 檢查授權（嚴格模式：管理員也需要授權）
+    is_authorized = authorized_user_ids.include?(User.current.id) || 
+                    (authorized_group_ids & user_group_ids).any? ||
+                    User.current.allowed_to?(:modify_due_date, @issue.project)
+    
+    can_modify = is_authorized
+  else
+    can_modify = true
+  end
+  
+  # 關鍵修正：只有當 issue 已經存檔（persisted）且原本就有 due_date 時才鎖定
+  # 新建的 issue (new_record?) 應該永遠允許設定
+  is_new_issue = @issue.new_record?
+  original_has_due_date = @issue.persisted? && @issue.due_date.present?
+%>
+
+<script>
+$(document).ready(function() {
+  var canModifyDueDate = <%= can_modify.to_json %>;
+  var protectionEnabled = <%= protection_enabled.to_json %>;
+  var isNewIssue = <%= is_new_issue.to_json %>;
+  var originalHasDueDate = <%= original_has_due_date.to_json %>;
+  
+  // 關鍵邏輯修正：
+  // 1. 如果是新建 issue (isNewIssue = true)，永遠不鎖定
+  // 2. 只有在「已存檔」且「原本就有 due date」且「使用者無權限」時才鎖定
+  var shouldLock = protectionEnabled && !isNewIssue && originalHasDueDate && !canModifyDueDate;
+  
+  if (shouldLock) {
+    var $dueDateField = $('#issue_due_date');
+    
+    if ($dueDateField.length) {
+      // 禁用輸入框
+      $dueDateField.prop('disabled', true);
+      $dueDateField.css({
+        'background-color': '#f5f5f5',
+        'cursor': 'not-allowed'
+      });
+      $dueDateField.attr('title', '<%= l(:text_due_date_modification_restricted) %>');
+      
+      // 禁用日期選擇器圖標（支援多種可能的選擇器）
+      var $datepicker = $dueDateField.next('a.ui-datepicker-trigger, a.calendar-trigger, a[data-calendar]');
+      if ($datepicker.length) {
+        $datepicker.css({
+          'pointer-events': 'none',
+          'opacity': '0.5',
+          'cursor': 'not-allowed'
+        });
+      }
+      
+      // 添加鎖定圖標（避免重複添加）
+      var $container = $dueDateField.closest('p');
+      if ($container.find('.icon-lock').length === 0) {
+        $container.prepend(
+          '<span class="icon icon-lock" style="margin-right: 5px; color: #f44336;" ' +
+          'title="<%= l(:text_due_date_protected) %>"></span>'
+        );
+      }
+    }
+  }
+  
+  // 除錯資訊（可在瀏覽器 console 查看）
+  if (window.console && console.log) {
+    console.log('[DueDateProtection] Debug Info:', {
+      protectionEnabled: protectionEnabled,
+      isNewIssue: isNewIssue,
+      originalHasDueDate: originalHasDueDate,
+      canModifyDueDate: canModifyDueDate,
+      shouldLock: shouldLock
+    });
+  }
+});
+</script>

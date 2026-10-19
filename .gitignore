@@ -1,0 +1,14 @@
+# Local credentials and runtime data
+.env
+.env.*
+!.env.example
+node_modules/
+_data/
+log/
+tmp/
+coverage/
+*.log
+*.backup
+*.bak
+*~
+.DS_Store

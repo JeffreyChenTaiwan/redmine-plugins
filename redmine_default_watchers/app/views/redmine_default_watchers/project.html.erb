@@ -1,0 +1,103 @@
+<%# plugins/redmine_default_watchers/app/views/redmine_default_watchers/project.html.erb %>
+<%
+  # 建立包含使用者和群組的選項
+  project_users = User.active.joins(:members).where(members: { project_id: @project.id }).sorted.to_a
+  available_groups = Group.givable.sorted.to_a
+  
+  user_group_options = []
+  if project_users.any?
+    user_options = project_users.map { |user| ["#{user.name} (#{user.login})", "user:#{user.id}"] }
+    user_group_options << [l(:label_users), user_options]
+  end
+  if available_groups.any?
+    group_options = available_groups.map { |group| [group.name, "group:#{group.id}"] }
+    user_group_options << [l(:label_groups), group_options]
+  end
+%>
+
+<h2><%= l(:label_default_watchers_settings) %> - <%= @project.name %></h2>
+
+<%= form_tag url_for(controller: 'redmine_default_watchers', action: 'project_save', project_id: @project), method: :post do %>
+  <div class="box tabular settings">
+    <p class="notice"><%= l(:text_project_default_watchers_explanation) %></p>
+
+    <div id="project-default-watchers">
+      <% if @project_watchers.any? %>
+        <% @project_watchers.each_with_index do |watcher_id, index| %>
+          <div class="watcher-row">
+            <p>
+              <label><%= l(:label_watcher) %> <%= index + 1 %></label>
+              <%= select_tag "project_watchers[]",
+                    grouped_options_for_select(user_group_options, watcher_id),
+                    { include_blank: l(:label_select_user_or_group), class: 'project-watcher-field' } %>
+              <a href="#" class="icon icon-del delete-watcher" style="margin-left: 10px;"><%= l(:button_delete) %></a>
+            </p>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="watcher-row">
+          <p>
+            <label><%= l(:label_watcher) %> 1</label>
+            <%= select_tag "project_watchers[]",
+                  grouped_options_for_select(user_group_options),
+                  { include_blank: l(:label_select_user_or_group), class: 'project-watcher-field' } %>
+            <a href="#" class="icon icon-del delete-watcher" style="margin-left: 10px;"><%= l(:button_delete) %></a>
+          </p>
+        </div>
+      <% end %>
+    </div>
+
+    <p>
+      <a href="#" class="icon icon-add" id="add-watcher"><%= l(:button_add_watcher) %></a>
+    </p>
+
+    <p><%= submit_tag l(:button_save) %></p>
+  </div>
+<% end %>
+
+<style>
+  .watcher-row {
+    margin-bottom: 10px;
+    clear: both;
+  }
+</style>
+
+<script>
+$(document).ready(function() {
+  $('#add-watcher').on('click', function(e) {
+    e.preventDefault();
+    var watcherCount = $('#project-default-watchers .watcher-row').length + 1;
+    var newRow = `
+      <div class="watcher-row">
+        <p>
+          <label><%= l(:label_watcher) %> ${watcherCount}</label>
+          <select name="project_watchers[]" class="project-watcher-field">
+            <option value=""><%= l(:label_select_user_or_group) %></option>
+            <optgroup label="<%= l(:label_users) %>">
+              <% project_users.each do |user| %>
+                <option value="user:<%= user.id %>"><%= user.name %> (<%= user.login %>)</option>
+              <% end %>
+            </optgroup>
+            <optgroup label="<%= l(:label_groups) %>">
+              <% available_groups.each do |group| %>
+                <option value="group:<%= group.id %>"><%= group.name %></option>
+              <% end %>
+            </optgroup>
+          </select>
+          <a href="#" class="icon icon-del delete-watcher" style="margin-left: 10px;"><%= l(:button_delete) %></a>
+        </p>
+      </div>
+    `;
+    $('#project-default-watchers').append(newRow);
+  });
+
+  $(document).on('click', '.delete-watcher', function(e) {
+    e.preventDefault();
+    $(this).closest('.watcher-row').remove();
+    
+    $('#project-default-watchers .watcher-row').each(function(index) {
+      $(this).find('label').text('<%= l(:label_watcher) %> ' + (index + 1));
+    });
+  });
+});
+</script>

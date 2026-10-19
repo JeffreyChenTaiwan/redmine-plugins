@@ -1,0 +1,22 @@
+# plugins/redmine_autoassign_configurable/config/locales/zh-TW.yml
+zh-TW:
+  label_autoassign_settings: 自動指派設定
+  label_autoassign_rules: 自動指派規則
+  label_status: 狀態
+  label_assign_to: 指派給
+  label_author: 原始建立者
+  label_manager: 專案管理員
+  label_last_updater: 最後更新者
+  label_notifications: 通知訊息
+  label_english: 英文
+  label_chinese_traditional: 繁體中文
+  label_chinese_simplified: 簡體中文
+  label_japanese: 日文
+  button_add_rule: 新增規則
+  button_delete: 刪除
+  button_split_statuses: 拆分為個別規則
+  text_comma_separated: 逗號分隔值，不區分大小寫
+  text_single_status: 選擇單一狀態名稱
+  text_use_name_placeholder: 使用 {name} 作為指派者姓名的佔位符
+  text_status_rule_explanation: 每個規則將在狀態完全符合時將問題指派給特定用戶。為獲得最佳結果，請為每個狀態創建單獨的規則。
+  text_split_status_tooltip: 將多狀態規則分割為個別規則

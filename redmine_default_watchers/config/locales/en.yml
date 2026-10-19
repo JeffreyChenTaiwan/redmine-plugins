@@ -1,0 +1,19 @@
+# plugins/redmine_default_watchers/config/locales/en.yml
+en:
+  label_default_watchers_settings: Default Watchers Settings
+  label_default_watchers: Default Watchers
+  label_global_default_watchers: Global Default Watchers
+  label_project_specific_watchers: Project Specific Watchers
+  label_watcher: Watcher
+  label_select_user: Select User
+  label_select_user_or_group: Select User or Group
+  label_users: Users
+  label_groups: Groups
+  label_auto_watchers_will_be_added: "Default watchers will be automatically added:"
+  button_add_watcher: Add Watcher
+  button_delete: Delete
+  text_global_watchers_explanation: These users and groups will be automatically added as watchers to all new issues across all projects.
+  text_project_watchers_explanation: These users and groups will be automatically added as watchers to new issues in specific projects.
+  text_project_default_watchers_explanation: These users and groups will be automatically added as watchers to all new issues in this project.
+  text_via_group: "via group %{group}"
+  error_adding_watcher: Error adding watcher

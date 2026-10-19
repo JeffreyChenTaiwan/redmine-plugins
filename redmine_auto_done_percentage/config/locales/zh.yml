@@ -1,0 +1,4 @@
+zh:
+  label_auto_done_percentage_settings: "自动完成度设置"
+  label_auto_complete_statuses: "自动设置完成度为 100% 的状态"
+  text_auto_complete_statuses_description: "选择一个或多个状态。当问题单的状态变更为这些状态时，完成度将自动设置为 100%。当变更为其他状态时，将还原为原始的完成度。"

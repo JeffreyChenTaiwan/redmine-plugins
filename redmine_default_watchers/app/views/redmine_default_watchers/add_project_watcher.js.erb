@@ -1,0 +1,21 @@
+<%# plugins/redmine_default_watchers/app/views/redmine_default_watchers/add_project_watcher.js.erb %>
+$('#project-watchers-<%= @project_id %>').append(`
+  <div class="project-watcher-row">
+    <p>
+      <label><%= l(:label_watcher) %> <%= @watcher_index + 1 %></label>
+      <select name="settings[project_watchers][<%= @project_id %>][]" class="project-watcher-field">
+        <option value=""><%= l(:label_select_user_or_group) %></option>
+        <% if @user_group_options.any? %>
+          <% @user_group_options.each do |group_label, options| %>
+            <optgroup label="<%= group_label %>">
+              <% options.each do |option_text, option_value| %>
+                <option value="<%= option_value %>"><%= option_text %></option>
+              <% end %>
+            </optgroup>
+          <% end %>
+        <% end %>
+      </select>
+      <a href="#" class="icon icon-del delete-project-watcher" style="margin-left: 10px;"><%= l(:button_delete) %></a>
+    </p>
+  </div>
+`);

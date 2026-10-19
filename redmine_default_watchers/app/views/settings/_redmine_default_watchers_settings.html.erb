@@ -1,0 +1,180 @@
+<%# plugins/redmine_default_watchers/app/views/settings/_redmine_default_watchers_settings.html.erb %>
+<%
+  @settings = Setting.plugin_redmine_default_watchers
+  @settings[:global_watchers] ||= []
+  @settings[:project_watchers] ||= {}
+
+  # 獲取所有活躍用戶和群組
+  @active_users = User.active.sorted.to_a
+  @active_groups = Group.givable.sorted.to_a
+  @projects = Project.active.sorted.to_a
+  
+  # 建立包含使用者和群組的選項
+  @user_group_options = []
+  if @active_users.any?
+    user_options = @active_users.map { |user| ["#{user.name} (#{user.login})", "user:#{user.id}"] }
+    @user_group_options << [l(:label_users), user_options]
+  end
+  if @active_groups.any?
+    group_options = @active_groups.map { |group| [group.name, "group:#{group.id}"] }
+    @user_group_options << [l(:label_groups), group_options]
+  end
+%>
+
+<style>
+  .watcher-row {
+    position: relative;
+    margin-bottom: 10px;
+    clear: both;
+  }
+  .watcher-buttons {
+    margin-top: 5px;
+  }
+  .project-watcher-section {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+  }
+  .project-watcher-section h4 {
+    margin-top: 0;
+    color: #555;
+  }
+  .watcher-separator {
+    margin-top: 15px;
+    border: 0;
+    border-bottom: 1px solid #e0e0e0;
+  }
+</style>
+
+<h3><%= l(:label_global_default_watchers) %></h3>
+
+<div class="box tabular settings">
+  <p class="notice"><%= l(:text_global_watchers_explanation) %></p>
+
+  <div id="global-watchers">
+    <% if @settings[:global_watchers].present? %>
+      <% @settings[:global_watchers].each_with_index do |watcher_id, index| %>
+        <div class="watcher-row">
+          <p>
+            <label><%= l(:label_watcher) %> <%= index + 1 %></label>
+            <%= select_tag "settings[global_watchers][]",
+                  grouped_options_for_select(@user_group_options, watcher_id),
+                  { include_blank: l(:label_select_user_or_group), class: 'global-watcher-field' } %>
+            <a href="#" class="icon icon-del delete-global-watcher" style="margin-left: 10px;"><%= l(:button_delete) %></a>
+          </p>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="watcher-row">
+        <p>
+          <label><%= l(:label_watcher) %> 1</label>
+          <%= select_tag "settings[global_watchers][]",
+                grouped_options_for_select(@user_group_options),
+                { include_blank: l(:label_select_user_or_group), class: 'global-watcher-field' } %>
+          <a href="#" class="icon icon-del delete-global-watcher" style="margin-left: 10px;"><%= l(:button_delete) %></a>
+        </p>
+      </div>
+    <% end %>
+  </div>
+
+  <p>
+    <a href="#" class="icon icon-add" id="add-global-watcher"><%= l(:button_add_watcher) %></a>
+  </p>
+
+  <hr class="watcher-separator" />
+
+  <h3><%= l(:label_project_specific_watchers) %></h3>
+  <p class="notice"><%= l(:text_project_watchers_explanation) %></p>
+
+  <div id="project-watchers">
+    <% @projects.each do |project| %>
+      <div class="project-watcher-section" data-project-id="<%= project.id %>">
+        <h4><%= project.name %></h4>
+        <div class="project-watcher-list" id="project-watchers-<%= project.id %>">
+          <% project_watchers = @settings[:project_watchers][project.id.to_s] || [] %>
+          <% if project_watchers.any? %>
+            <% project_watchers.each_with_index do |watcher_id, index| %>
+              <%= render partial: 'settings/project_watcher_row', locals: { project: project, watcher_id: watcher_id, index: index } %>
+            <% end %>
+          <% else %>
+            <%= render partial: 'settings/project_watcher_row', locals: { project: project, watcher_id: nil, index: 0 } %>
+          <% end %>
+        </div>
+        <p>
+          <a href="#" class="icon icon-add add-project-watcher" data-project-id="<%= project.id %>"><%= l(:button_add_watcher) %></a>
+        </p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+$(document).ready(function() {
+  // 添加全域觀察者
+  $('#add-global-watcher').on('click', function(e) {
+    e.preventDefault();
+    var watcherCount = $('#global-watchers .watcher-row').length + 1;
+    var newRow = `
+      <div class="watcher-row">
+        <p>
+          <label><%= l(:label_watcher) %> ${watcherCount}</label>
+          <select name="settings[global_watchers][]" class="global-watcher-field">
+            <option value=""><%= l(:label_select_user_or_group) %></option>
+            <optgroup label="<%= l(:label_users) %>">
+              <% @active_users.each do |user| %>
+                <option value="user:<%= user.id %>"><%= user.name %> (<%= user.login %>)</option>
+              <% end %>
+            </optgroup>
+            <optgroup label="<%= l(:label_groups) %>">
+              <% @active_groups.each do |group| %>
+                <option value="group:<%= group.id %>"><%= group.name %></option>
+              <% end %>
+            </optgroup>
+          </select>
+          <a href="#" class="icon icon-del delete-global-watcher" style="margin-left: 10px;"><%= l(:button_delete) %></a>
+        </p>
+      </div>
+    `;
+    $('#global-watchers').append(newRow);
+  });
+
+  // 刪除全域觀察者
+  $(document).on('click', '.delete-global-watcher', function(e) {
+    e.preventDefault();
+    $(this).closest('.watcher-row').remove();
+    
+    // 重新編號
+    $('#global-watchers .watcher-row').each(function(index) {
+      $(this).find('label').text('<%= l(:label_watcher) %> ' + (index + 1));
+    });
+  });
+
+  // 添加專案觀察者
+  $(document).on('click', '.add-project-watcher', function(e) {
+    e.preventDefault();
+    var projectId = $(this).data('project-id');
+    var projectContainer = $('#project-watchers-' + projectId);
+    var watcherCount = projectContainer.find('.project-watcher-row').length;
+
+    $.ajax({
+      url: '<%= url_for(controller: 'redmine_default_watchers', action: 'add_project_watcher', format: 'js') %>',
+      data: { 
+        project_id: projectId,
+        index: watcherCount
+      },
+      type: 'GET',
+      dataType: 'script',
+      error: function(jqXHR, textStatus, errorThrown) {
+        alert("<%= l(:error_adding_watcher) %>: " + textStatus);
+      }
+    });
+  });
+
+  // 刪除專案觀察者
+  $(document).on('click', '.delete-project-watcher', function(e) {
+    e.preventDefault();
+    $(this).closest('.project-watcher-row').remove();
+  });
+});
+</script>

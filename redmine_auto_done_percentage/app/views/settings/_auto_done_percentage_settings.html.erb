@@ -1,0 +1,24 @@
+<div class="box">
+  <h3><%= l(:label_auto_done_percentage_settings) %></h3>
+  
+  <p>
+    <label><%= l(:label_auto_complete_statuses) %></label>
+    <%= select_tag 'settings[auto_complete_statuses][]',
+                   options_from_collection_for_select(IssueStatus.sorted, 'id', 'name', 
+                                                      @settings['auto_complete_statuses'] || []),
+                   multiple: true,
+                   size: 10,
+                   class: 'form-control' %>
+  </p>
+  
+  <p class="description">
+    <%= l(:text_auto_complete_statuses_description) %>
+  </p>
+</div>
+
+<style>
+  .box select[multiple] {
+    width: 100%;
+    max-width: 400px;
+  }
+</style>

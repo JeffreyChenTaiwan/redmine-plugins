@@ -1,0 +1,42 @@
+<%
+  settings = Setting.plugin_redmine_due_date_protection || {}
+  protection_enabled = settings['protection_enabled'] == '1'
+
+  show_lock = false
+
+  if protection_enabled && @issue && @issue.due_date.present?
+    global_users = Array(settings['global_authorized_users']).map(&:to_i).compact
+    global_groups = Array(settings['global_authorized_groups']).map(&:to_i).compact
+
+    project_settings = settings['project_settings'] || {}
+    project_config = project_settings[@issue.project_id.to_s] || {}
+    project_users = Array(project_config['authorized_users']).map(&:to_i).compact
+    project_groups = Array(project_config['authorized_groups']).map(&:to_i).compact
+
+    authorized_user_ids = (global_users + project_users).uniq
+    authorized_group_ids = (global_groups + project_groups).uniq
+    user_group_ids = User.current.groups.pluck(:id) rescue []
+
+    can_modify = authorized_user_ids.include?(User.current.id) ||
+                 (authorized_group_ids & user_group_ids).any?
+
+    show_lock = !can_modify
+  end
+%>
+
+<% if show_lock %>
+<script>
+(function() {
+  try {
+    $(document).ready(function() {
+      var $dueDateCell = $('.due-date').closest('td');
+      if ($dueDateCell.length > 0 && $dueDateCell.find('.icon-lock').length === 0) {
+        $dueDateCell.prepend('<span class="icon icon-lock" style="margin-right: 5px; color: #f44336;" title="<%= j l(:text_due_date_protected) %>"></span>');
+      }
+    });
+  } catch(e) {
+    console.error('[DueDateProtection] Error in show hook:', e);
+  }
+})();
+</script>
+<% end %>

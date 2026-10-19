@@ -1,0 +1,12 @@
+<div class="html-attachment-preview">
+  <iframe class="html-attachment-preview-frame"
+          title="<%= l(:label_html_attachment_preview) %>: <%= attachment.filename %>"
+          sandbox=""
+          referrerpolicy="no-referrer"
+          srcdoc="<%= preview_document %>"></iframe>
+
+  <details class="html-attachment-preview-source">
+    <summary><%= l(:label_html_attachment_source) %></summary>
+    <%= render :partial => 'common/file', :locals => { :content => content, :filename => attachment.filename } %>
+  </details>
+</div>

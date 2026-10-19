@@ -1,0 +1,160 @@
+<%# plugins/redmine_autoassign_configurable/app/views/hooks/redmine_autoassign_configurable/_issues_form_details_bottom.html.erb %>
+<script>
+$(document).ready(function() {
+  // 保存問題建立者的 ID 和名稱
+  var authorId = <%= @issue.author_id %>;
+  var authorName = "<%= @issue.author.name %>";
+
+  // 保存管理者 ID 和名稱（如果有的話）
+  var managerId = <%= @issue.project.try(:manager).try(:id) || 'null' %>;
+  var managerName = "<%= @issue.project.try(:manager).try(:name) || '' %>";
+
+  // 最後更新者（預設為當前用戶）
+  var lastUpdaterId = <%= User.current.id %>;
+  var lastUpdaterName = "<%= User.current.name %>";
+
+  // 從插件設定中獲取規則
+  var autoassignRules = <%= raw Setting.plugin_redmine_autoassign_configurable[:rules].to_json %>;
+
+  // 從插件設定中獲取通知訊息
+  var notifications = <%= raw Setting.plugin_redmine_autoassign_configurable[:notifications].to_json %>;
+
+  // 獲取用戶界面語言
+  var userLanguage = $('html').attr('lang') || 'en';
+  
+  // 創建用戶資訊緩存
+  var userCache = {};
+  
+  // 準備包含所有可用用戶的緩存
+  <% User.active.each do |user| %>
+    userCache['<%= user.id %>'] = { id: <%= user.id %>, name: "<%= user.name %>" };
+  <% end %>
+
+  // 插入樣式到頁面頭部
+  $('head').append(`
+    <style>
+      #center_notification {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #4CAF50;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        z-index: 9999;
+        font-size: 14px;
+        font-weight: bold;
+        text-align: center;
+        min-width: 300px;
+        display: none;
+      }
+    </style>
+  `);
+
+  // 在頁面主體部分添加通知元素
+  $('body').append('<div id="center_notification"></div>');
+
+  // 顯示中央通知的函數
+  function showCenterNotification(message) {
+    $('#center_notification')
+      .text(message)
+      .fadeIn(300)
+      .delay(2000)
+      .fadeOut(300);
+  }
+
+  // 根據規則和狀態確定指派給誰
+  function getAssigneeByStatus(status) {
+    var statusLower = status.toLowerCase().trim();
+
+    for (var i = 0; i < autoassignRules.length; i++) {
+      var rule = autoassignRules[i];
+      var ruleStatuses = rule.status.toLowerCase().split(',').map(function(s) { return s.trim(); });
+
+      // 檢查狀態是否與規則中的任何狀態匹配
+      for (var j = 0; j < ruleStatuses.length; j++) {
+        // 使用準確的狀態匹配而不是模糊匹配
+        if (statusLower === ruleStatuses[j]) {
+          // 處理用戶 ID 格式: "user:123"
+          if (rule.assign_to && rule.assign_to.startsWith('user:')) {
+            var userId = rule.assign_to.split(':')[1];
+            // 從我們的緩存中獲取用戶信息
+            return getRedmineUserInfo(userId);
+          } else {
+            // 處理特殊角色
+            switch (rule.assign_to) {
+              case 'author':
+                return { id: authorId, name: authorName };
+              case 'manager':
+                if (managerId && managerId !== 'null') {
+                  return { id: managerId, name: managerName };
+                }
+                return null;
+              case 'last_updater':
+                return { id: lastUpdaterId, name: lastUpdaterName };
+              default:
+                return null;
+            }
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
+  // 從 Redmine 獲取用戶信息的函數
+  function getRedmineUserInfo(userId) {
+    // 首先檢查我們的緩存
+    if (userCache[userId]) {
+      return userCache[userId];
+    }
+    
+    // 如果沒有緩存數據，使用用戶 ID 作為備用
+    return { id: userId, name: "User #" + userId };
+  }
+
+  // 獲取本地化通知訊息
+  function getLocalizedMessage(assignee) {
+    var message = notifications[userLanguage] || notifications['en'] || 'Automatically assigned to {name}';
+    return message.replace('{name}', assignee.name);
+  }
+
+  // 監聽狀態下拉選單的變化
+  $('#issue_status_id').on('change', function() {
+    // 獲取選定的狀態選項文字
+    var selectedStatusText = $('#issue_status_id option:selected').text();
+
+    // 根據狀態和規則確定指派給誰
+    var assignee = getAssigneeByStatus(selectedStatusText);
+
+    if (assignee) {
+      // 設置指派者
+      $('#issue_assigned_to_id').val(assignee.id);
+
+      // 如果使用 select2 插件，需要額外觸發更新
+      if ($.fn.select2) {
+        $('#issue_assigned_to_id').trigger('change.select2');
+      }
+
+      // 顯示本地化的通知訊息
+      showCenterNotification(getLocalizedMessage(assignee));
+    }
+  });
+
+  // 頁面載入時也檢查一次當前狀態
+  if ($('#issue_status_id').length > 0) {
+    var currentStatusText = $('#issue_status_id option:selected').text();
+    var assignee = getAssigneeByStatus(currentStatusText);
+
+    if (assignee) {
+      $('#issue_assigned_to_id').val(assignee.id);
+      if ($.fn.select2) {
+        $('#issue_assigned_to_id').trigger('change.select2');
+      }
+    }
+  }
+});
+</script>

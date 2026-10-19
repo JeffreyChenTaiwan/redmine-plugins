@@ -1,0 +1,4 @@
+en:
+  label_auto_done_percentage_settings: "Auto Done Percentage Settings"
+  label_auto_complete_statuses: "Statuses that auto-set done percentage to 100%"
+  text_auto_complete_statuses_description: "Select one or more statuses. When an issue's status is changed to any of these statuses, the done percentage will automatically be set to 100%. When changed to other statuses, the original done percentage will be restored."

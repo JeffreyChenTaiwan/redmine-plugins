@@ -1,0 +1,26 @@
+<%# plugins/redmine_default_watchers/app/views/settings/_project_watcher_row.html.erb %>
+<%
+  # 建立專案的使用者和群組選項
+  project_users = User.active.joins(:members).where(members: { project_id: project.id }).sorted.to_a
+  available_groups = Group.givable.sorted.to_a
+  
+  project_options = []
+  if project_users.any?
+    user_options = project_users.map { |user| ["#{user.name} (#{user.login})", "user:#{user.id}"] }
+    project_options << [l(:label_users), user_options]
+  end
+  if available_groups.any?
+    group_options = available_groups.map { |group| [group.name, "group:#{group.id}"] }
+    project_options << [l(:label_groups), group_options]
+  end
+%>
+
+<div class="project-watcher-row">
+  <p>
+    <label><%= l(:label_watcher) %> <%= index + 1 %></label>
+    <%= select_tag "settings[project_watchers][#{project.id}][]",
+          grouped_options_for_select(project_options, watcher_id),
+          { include_blank: l(:label_select_user_or_group), class: 'project-watcher-field' } %>
+    <a href="#" class="icon icon-del delete-project-watcher" style="margin-left: 10px;"><%= l(:button_delete) %></a>
+  </p>
+</div>

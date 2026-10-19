@@ -1,0 +1,19 @@
+# plugins/redmine_default_watchers/config/locales/zh-CN.yml
+zh-CN:
+  label_default_watchers_settings: 默认观察者设置
+  label_default_watchers: 默认观察者
+  label_global_default_watchers: 全局默认观察者
+  label_project_specific_watchers: 项目特定观察者
+  label_watcher: 观察者
+  label_select_user: 选择用户
+  label_select_user_or_group: 选择用户或群组
+  label_users: 用户
+  label_groups: 群组
+  label_auto_watchers_will_be_added: "默认观察者将自动被添加："
+  button_add_watcher: 添加观察者
+  button_delete: 删除
+  text_global_watchers_explanation: 这些用户和群组将自动添加为所有项目中新问题的观察者。
+  text_project_watchers_explanation: 这些用户和群组将自动添加为特定项目中新问题的观察者。
+  text_project_default_watchers_explanation: 这些用户和群组将自动添加为此项目中所有新问题的观察者。
+  text_via_group: "通过群组 %{group}"
+  error_adding_watcher: 添加观察者时发生错误

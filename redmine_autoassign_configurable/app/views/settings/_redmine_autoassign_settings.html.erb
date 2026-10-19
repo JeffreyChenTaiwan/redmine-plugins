@@ -1,0 +1,159 @@
+<%# plugins/redmine_autoassign_configurable/app/views/settings/_redmine_autoassign_settings.html.erb %>
+<%
+  @settings = Setting.plugin_redmine_autoassign_configurable
+  @settings[:rules] ||= []
+  @settings[:notifications] ||= {
+    'en' => 'Automatically assigned to {name}',
+    'zh-TW' => '已自動指派給 {name}',
+    'zh-CN' => '已自动指派给 {name}',
+    'ja' => '自動的に {name} に割り当てられました'
+  }
+
+  # 獲取所有活躍用戶，以便在表單中使用
+  @active_users = User.active.sorted.to_a
+  @user_options = [[l(:label_author), 'author'],
+                    [l(:label_manager), 'manager'],
+                    [l(:label_last_updater), 'last_updater']]
+
+  # 添加所有活躍用戶到選項列表
+  @active_users.each do |user|
+    @user_options << ["#{user.name} (#{user.login})", "user:#{user.id}"]
+  end
+  
+  # 獲取所有可用的問題狀態
+  @available_statuses ||= IssueStatus.all.sorted.to_a
+%>
+
+<style>
+  .rule-row {
+    position: relative;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    clear: both;
+  }
+  .rule-content {
+    width: 100%;
+  }
+  .rule-buttons {
+    margin-top: 5px;
+  }
+  .rule-separator {
+    margin-top: 15px;
+    border: 0;
+    border-bottom: 1px solid #e0e0e0;
+  }
+</style>
+
+<h3><%= l(:label_autoassign_rules) %></h3>
+
+<div class="box tabular settings">
+  <p class="notice"><%= l(:text_status_rule_explanation) %></p>
+
+  <div id="autoassign-rules">
+    <% if @settings[:rules].present? %>
+      <% @settings[:rules].each_with_index do |rule, index| %>
+        <%= render partial: 'settings/rule', locals: { rule: rule, index: index, user_options: @user_options, available_statuses: @available_statuses } %>
+      <% end %>
+    <% else %>
+      <%= render partial: 'settings/rule', locals: { rule: { 'status' => '', 'assign_to' => '' }, index: 0, user_options: @user_options, available_statuses: @available_statuses } %>
+    <% end %>
+  </div>
+
+  <p>
+    <a href="#" class="icon icon-add" id="add-autoassign-rule"><%= l(:button_add_rule) %></a>
+  </p>
+
+  <h3><%= l(:label_notifications) %></h3>
+
+  <div class="splitcontent">
+    <div class="splitcontentleft">
+      <p>
+        <label><%= l(:label_english) %></label>
+        <%= text_field_tag 'settings[notifications][en]', @settings[:notifications]['en'], size: 50 %>
+        <em class="info"><%= l(:text_use_name_placeholder) %></em>
+      </p>
+    </div>
+
+    <div class="splitcontentright">
+      <p>
+        <label><%= l(:label_chinese_traditional) %></label>
+        <%= text_field_tag 'settings[notifications][zh-TW]', @settings[:notifications]['zh-TW'], size: 50 %>
+      </p>
+    </div>
+  </div>
+
+  <div class="splitcontent">
+    <div class="splitcontentleft">
+      <p>
+        <label><%= l(:label_chinese_simplified) %></label>
+        <%= text_field_tag 'settings[notifications][zh-CN]', @settings[:notifications]['zh-CN'], size: 50 %>
+      </p>
+    </div>
+
+    <div class="splitcontentright">
+      <p>
+        <label><%= l(:label_japanese) %></label>
+        <%= text_field_tag 'settings[notifications][ja]', @settings[:notifications]['ja'], size: 50 %>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+$(document).ready(function() {
+  // 添加規則按鈕點擊事件
+  $('#add-autoassign-rule').on('click', function(e) {
+    e.preventDefault();
+    var ruleCount = $('#autoassign-rules > div').length;
+
+    // 使用 Ajax 載入新規則
+    $.ajax({
+      url: '<%= url_for(controller: 'redmine_autoassign', action: 'new_rule', format: 'js') %>',
+      data: { index: ruleCount },
+      type: 'GET',
+      dataType: 'script',
+      error: function(jqXHR, textStatus, errorThrown) {
+        alert("載入新規則時發生錯誤: " + textStatus);
+      }
+    });
+  });
+
+  // 刪除規則按鈕事件委派
+  $(document).on('click', '.delete-rule', function(e) {
+    e.preventDefault();
+    $(this).closest('.rule-row').remove();
+  });
+
+  // 分割規則按鈕功能已不再需要，因為使用了下拉選單
+  // 但保留此功能以便處理舊有的多狀態規則
+  $(document).on('click', '.split-status-btn', function(e) {
+    e.preventDefault();
+    var $ruleRow = $(this).closest('.rule-row');
+    var statusText = $ruleRow.find('select[name="settings[rules][][status]"]').val();
+    var assignToValue = $ruleRow.find('select[name="settings[rules][][assign_to]"]').val();
+
+    if (statusText && statusText.includes(',')) {
+      var statuses = statusText.split(',').map(function(s) { return s.trim(); });
+
+      // 刪除當前規則行
+      $ruleRow.remove();
+
+      // 為每個狀態創建一個新規則
+      statuses.forEach(function(status) {
+        if (status) {
+          $.ajax({
+            url: '<%= url_for(controller: 'redmine_autoassign', action: 'new_rule', format: 'js') %>',
+            data: {
+              index: $('#autoassign-rules > div').length,
+              status: status,
+              assign_to: assignToValue
+            },
+            type: 'GET',
+            dataType: 'script'
+          });
+        }
+      });
+    }
+  });
+});
+</script>

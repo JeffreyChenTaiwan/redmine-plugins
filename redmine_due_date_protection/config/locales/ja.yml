@@ -1,0 +1,27 @@
+ja:
+  label_due_date_protection_settings: 期日保護設定
+  label_due_date_protection: 期日保護
+  label_protection_status: 保護ステータス
+  label_protection_on: "有効"
+  label_protection_off: "無効"
+  label_enable_due_date_protection: 期日保護を有効にする
+  label_global_authorized_users: グローバル承認ユーザー
+  label_global_authorized_groups: グローバル承認グループ
+  label_project_specific_protection: プロジェクト固有の保護
+  label_authorized_users: 承認ユーザー
+  label_authorized_groups: 承認グループ
+  label_select_user: ユーザーを選択
+  label_select_group: グループを選択
+  label_due_date_protected: 期日は保護されています
+  button_add_user: ユーザーを追加
+  button_add_group: グループを追加
+  button_delete: 削除
+  text_protection_explanation: 有効にすると、承認されたユーザーとグループメンバーのみが設定済みの期日を変更できます。
+  text_global_users_explanation: これらのユーザーは、すべてのプロジェクトのすべてのチケットの期日を変更できます。
+  text_global_groups_explanation: これらのグループのメンバーは、すべてのプロジェクトのすべてのチケットの期日を変更できます。
+  text_project_protection_explanation: 期日を変更するためのプロジェクト固有の承認ユーザーとグループを設定します。
+  text_due_date_modification_restricted: 期日の変更は制限されています
+  text_due_date_protected: この期日は保護されています
+  error_due_date_modification_not_permitted: このチケットの期日を変更する権限がありません。
+  notice_save_failed: 保存に失敗しました
+  permission_modify_due_date: 期日を変更

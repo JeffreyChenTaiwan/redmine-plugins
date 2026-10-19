@@ -1,0 +1,8 @@
+.mermaid rect.task {
+  height: 20px;
+}
+
+.mermaid:not([data-processed="true"]),
+.mermaid.mermaid-error {
+  white-space: pre-wrap;
+}

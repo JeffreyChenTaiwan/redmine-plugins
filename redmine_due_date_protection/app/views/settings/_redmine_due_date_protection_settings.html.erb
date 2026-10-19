@@ -1,0 +1,217 @@
+<%
+  @settings ||= Setting.plugin_redmine_due_date_protection || {}
+  current_status = @settings[:protection_enabled].to_s
+  current_status = '1' if current_status.blank?
+
+  @settings[:global_authorized_users] ||= []
+  @settings[:global_authorized_groups] ||= []
+  @settings[:project_settings] ||= {}
+
+  @active_users ||= User.active.sorted.to_a
+  @active_groups ||= Group.givable.sorted.to_a
+  @projects ||= Project.active.sorted.to_a
+%>
+
+<style>
+  .protection-row { margin-bottom: 10px; clear: both; }
+  .project-protection-section { margin-top: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 5px; background-color: #f9f9f9; }
+  .project-protection-section h4 { margin-top: 0; color: #555; }
+  .protection-separator { margin: 25px 0 15px 0; border: 0; border-bottom: 2px solid #ccc; }
+  .info-box { padding: 10px; background-color: #e3f2fd; border-left: 4px solid #2196F3; margin-bottom: 15px; }
+  select.status-select { font-weight: bold; }
+</style>
+
+<!-- 存儲選項數據供 JavaScript 使用 -->
+<div id="due-date-protection-data" style="display:none;"
+     data-users='<%= @active_users.map{|u| {id: u.id, name: u.name}}.to_json %>'
+     data-groups='<%= @active_groups.map{|g| {id: g.id, name: g.name}}.to_json %>'>
+</div>
+
+<div class="box tabular settings">
+  <h3><%= l(:label_protection_status) %></h3>
+  <p>
+    <label><%= l(:label_enable_due_date_protection) %></label>
+    <%= select_tag 'settings[protection_enabled]',
+          options_for_select([
+            [l(:label_protection_on), '1'],
+            [l(:label_protection_off), '0']
+          ], current_status),
+          class: 'status-select' %>
+    <br>
+    <em class="info"><%= l(:text_protection_explanation) %></em>
+  </p>
+
+  <hr class="protection-separator" />
+
+  <h3><%= l(:label_global_authorized_users) %></h3>
+  <div class="info-box"><%= l(:text_global_users_explanation) %></div>
+  <div id="global-users">
+    <% if @settings[:global_authorized_users].present? %>
+      <% @settings[:global_authorized_users].each do |user_id| %>
+        <div class="protection-row">
+          <p>
+            <%= select_tag "settings[global_authorized_users][]",
+                  options_from_collection_for_select(@active_users, 'id', 'name', user_id),
+                  { include_blank: l(:label_select_user), class: 'user-field' } %>
+            <a href="#" class="icon icon-del delete-user" style="margin-left: 10px;"><%= l(:button_delete) %></a>
+          </p>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+  <p><a href="#" class="icon icon-add" id="add-global-user"><%= l(:button_add_user) %></a></p>
+
+  <h3><%= l(:label_global_authorized_groups) %></h3>
+  <div class="info-box"><%= l(:text_global_groups_explanation) %></div>
+  <div id="global-groups">
+    <% if @settings[:global_authorized_groups].present? %>
+      <% @settings[:global_authorized_groups].each do |group_id| %>
+        <div class="protection-row">
+          <p>
+            <%= select_tag "settings[global_authorized_groups][]",
+                  options_from_collection_for_select(@active_groups, 'id', 'name', group_id),
+                  { include_blank: l(:label_select_group), class: 'group-field' } %>
+            <a href="#" class="icon icon-del delete-group" style="margin-left: 10px;"><%= l(:button_delete) %></a>
+          </p>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+  <p><a href="#" class="icon icon-add" id="add-global-group"><%= l(:button_add_group) %></a></p>
+
+  <hr class="protection-separator" />
+
+  <h3><%= l(:label_project_specific_protection) %></h3>
+  <div class="info-box"><%= l(:text_project_protection_explanation) %></div>
+
+  <div id="project-protections">
+    <% @projects.each do |project| %>
+      <% project_config = @settings[:project_settings][project.id.to_s] || {} %>
+      <% project_users = project_config['authorized_users'] || [] %>
+      <% project_groups = project_config['authorized_groups'] || [] %>
+
+      <div class="project-protection-section">
+        <h4><%= project.name %></h4>
+        <p><strong><%= l(:label_authorized_users) %>:</strong></p>
+        <div id="project-<%= project.id %>-users">
+          <% if project_users.any? %>
+            <% project_users.each do |user_id| %>
+              <div class="protection-row">
+                <%= select_tag "settings[project_settings][#{project.id}][authorized_users][]",
+                      options_from_collection_for_select(@active_users, 'id', 'name', user_id),
+                      { include_blank: l(:label_select_user) } %>
+                <a href="#" class="icon icon-del delete-project-user"><%= l(:button_delete) %></a>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+        <p><a href="#" class="icon icon-add add-project-user" data-project-id="<%= project.id %>"><%= l(:button_add_user) %></a></p>
+
+        <p><strong><%= l(:label_authorized_groups) %>:</strong></p>
+        <div id="project-<%= project.id %>-groups">
+          <% if project_groups.any? %>
+            <% project_groups.each do |group_id| %>
+              <div class="protection-row">
+                <%= select_tag "settings[project_settings][#{project.id}][authorized_groups][]",
+                      options_from_collection_for_select(@active_groups, 'id', 'name', group_id),
+                      { include_blank: l(:label_select_group) } %>
+                <a href="#" class="icon icon-del delete-project-group"><%= l(:button_delete) %></a>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+        <p><a href="#" class="icon icon-add add-project-group" data-project-id="<%= project.id %>"><%= l(:button_add_group) %></a></p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+$(document).ready(function() {
+  // 從 data attributes 讀取選項數據
+  var dataContainer = $('#due-date-protection-data');
+  var activeUsers = [];
+  var activeGroups = [];
+
+  try {
+    activeUsers = JSON.parse(dataContainer.attr('data-users') || '[]');
+    activeGroups = JSON.parse(dataContainer.attr('data-groups') || '[]');
+  } catch(e) {
+    console.error('Failed to parse user/group data:', e);
+  }
+
+  // 生成選項 HTML 的輔助函數
+  function createUserOptions(selectedId) {
+    var html = '<option value=""><%= j l(:label_select_user) %></option>';
+    activeUsers.forEach(function(user) {
+      var selected = (user.id == selectedId) ? ' selected' : '';
+      html += '<option value="' + user.id + '"' + selected + '>' + escapeHtml(user.name) + '</option>';
+    });
+    return html;
+  }
+
+  function createGroupOptions(selectedId) {
+    var html = '<option value=""><%= j l(:label_select_group) %></option>';
+    activeGroups.forEach(function(group) {
+      var selected = (group.id == selectedId) ? ' selected' : '';
+      html += '<option value="' + group.id + '"' + selected + '>' + escapeHtml(group.name) + '</option>';
+    });
+    return html;
+  }
+
+  function escapeHtml(text) {
+    var map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+  }
+
+  // 全域使用者
+  $('#add-global-user').on('click', function(e) {
+    e.preventDefault();
+    var newRow = '<div class="protection-row"><p><select name="settings[global_authorized_users][]" class="user-field">' +
+                 createUserOptions() +
+                 '</select><a href="#" class="icon icon-del delete-user" style="margin-left: 10px;"><%= j l(:button_delete) %></a></p></div>';
+    $('#global-users').append(newRow);
+  });
+
+  // 全域群組
+  $('#add-global-group').on('click', function(e) {
+    e.preventDefault();
+    var newRow = '<div class="protection-row"><p><select name="settings[global_authorized_groups][]" class="group-field">' +
+                 createGroupOptions() +
+                 '</select><a href="#" class="icon icon-del delete-group" style="margin-left: 10px;"><%= j l(:button_delete) %></a></p></div>';
+    $('#global-groups').append(newRow);
+  });
+
+  // 刪除按鈕
+  $(document).on('click', '.delete-user, .delete-project-user, .delete-group, .delete-project-group', function(e) {
+    e.preventDefault();
+    $(this).closest('.protection-row').remove();
+  });
+
+  // 專案使用者
+  $(document).on('click', '.add-project-user', function(e) {
+    e.preventDefault();
+    var projectId = $(this).data('project-id');
+    var newRow = '<div class="protection-row"><select name="settings[project_settings][' + projectId + '][authorized_users][]">' +
+                 createUserOptions() +
+                 '</select><a href="#" class="icon icon-del delete-project-user"><%= j l(:button_delete) %></a></div>';
+    $('#project-' + projectId + '-users').append(newRow);
+  });
+
+  // 專案群組
+  $(document).on('click', '.add-project-group', function(e) {
+    e.preventDefault();
+    var projectId = $(this).data('project-id');
+    var newRow = '<div class="protection-row"><select name="settings[project_settings][' + projectId + '][authorized_groups][]">' +
+                 createGroupOptions() +
+                 '</select><a href="#" class="icon icon-del delete-project-group"><%= j l(:button_delete) %></a></div>';
+    $('#project-' + projectId + '-groups').append(newRow);
+  });
+});
+</script>
