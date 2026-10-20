@@ -19,7 +19,40 @@
 
 上述測試沒有建立票單、附件或修改 Redmine 設定。其餘四個管理／表單插件沒有在這次整理新增或執行完整功能測試，既有缺口與較早核對紀錄仍保留於各 README。
 
-## 重現方式
+## 2026/10/21 Mermaid 1.2.4 驗證
+
+本次只更新 Mermaid 程式、文件及其回歸測試，其餘六個插件沒有變更。以下測試使用本集合內的 test/render_fixture.rb 與 test/browser.cjs，內容為合成圖表，不使用票單、專案或附件資料。
+
+| Redmine | Ruby / Rails | 實際 formatter | 瀏覽器 |
+| --- | --- | --- | --- |
+| 5.1.1.stable | 3.0.6 / 6.1.7.6 | CommonMark、Markdown、Textile 巨集 | Edge 155.0.4283.62、Playwright Firefox 135 |
+| 7.0.2.stable | 4.0.7 / 8.1.4 | CommonMark、Textile 巨集 | Edge 155.0.4283.62、Playwright Firefox 135 |
+
+- 兩個版本均以實際 Redmine formatter 產生 HTML；5.1.1 在獨立 Ruby 進程載入新版 Hook／巨集，沒有替換既有部署檔案。測試資料庫連線設為 session read-only，設定覆寫僅作用於當前進程。
+- 四組瀏覽器執行共 26 組檢查通過：巨集、可用的 fenced block、ELK、中文與特殊字元、一般程式碼與語法範例保留、動態預覽依序繪圖、錯誤後繼續繪圖、無圖表時不載入外部模組。
+- 分別模擬掃描前與等待 ELK 載入時留下 data-processed 標記，兩者均恢復繪圖；已完成的圖表重新插入 DOM 時保留原有 SVG。
+- 瀏覽器測試使用公開 CDN：Mermaid 11.16.1、layout-elk 0.2.2；另外確認舊設定缺少 elk_url 時的 CDN 回退。Hook 不再加入 importmap。
+- 本次未部署至既有正式站，未重跑其他六個插件的完整功能測試；上述結果不代表驗證了所有 Redmine 或瀏覽器版本。
+
+### Mermaid 重現方式
+
+在已安裝本版插件的 Redmine 根目錄執行：
+
+```bash
+RAILS_ENV=production bundle exec ruby -E UTF-8 -r ./config/environment plugins/redmine_mermaid_macro/test/render_fixture.rb
+```
+
+將 /tmp/redmine-mermaid-fixture.json 複製到開發主機，在已安裝 Playwright、Chromium 與 Firefox 的環境，從本集合根目錄執行：
+
+```bash
+node redmine_mermaid_macro/test/browser.cjs /tmp/redmine-mermaid-fixture.json
+MERMAID_BROWSER=firefox node redmine_mermaid_macro/test/browser.cjs /tmp/redmine-mermaid-fixture.json
+```
+
+可設定 MERMAID_BROWSER_EXECUTABLE 使用特定瀏覽器執行檔。測試啟動僅綁定本機的臨時 HTTP 埠，依合成 fixture 的設定載入公開模組；不需帳密或 API key。產生器不會寫入 Redmine 設定；MERMAID_FIXTURE 可指定輸出 JSON 路徑。
+
+## 2026/10/19 測試重現方式
+
 
 在已安裝插件的 Redmine 根目錄載入環境執行 Ruby 測試：
 

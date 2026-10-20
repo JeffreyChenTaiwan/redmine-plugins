@@ -2,7 +2,7 @@
 
 Jeffrey Chen 的 Redmine 插件集合，包含 **5 個自行開發的插件**及 **2 個保留上游歷史的本地改版**。每個插件都是一個獨立目錄，可依需求選用。
 
-整理日期：2026/10/19。來源環境：Redmine 5.1.1.stable，文字格式 CommonMark。這次整理保留目前的程式行為，個別限制請見下方及各插件 README。
+整理日期：2026/10/19；最近更新：2026/10/21。原始整理環境為 Redmine 5.1.1.stable、CommonMark；Mermaid 1.2.4 另驗證 Redmine 7.0.2，詳見各插件 README 與驗證紀錄。
 
 | 目錄與使用說明 | 版本 | 用途 | 來源／授權 |
 | --- | --- | --- | --- |
@@ -11,7 +11,7 @@ Jeffrey Chen 的 Redmine 插件集合，包含 **5 個自行開發的插件**及
 | [redmine_default_watchers](redmine_default_watchers/README.md) | 1.1.0 | 合併全域與專案的預設觀察者 | 自製，Jeffrey Chen／MIT |
 | [redmine_due_date_protection](redmine_due_date_protection/README.md) | 1.0.3 | 到期日欄位限制與授權設定；目前有覆蓋限制 | 自製，Jeffrey Chen／MIT |
 | [redmine_html_attachment_preview](redmine_html_attachment_preview/README.md) | 1.2.0 | HTML 附件及票內 htmlview 渲染，支援另開分頁 | 自製，Jeffrey Chen／MIT |
-| [redmine_mermaid_macro](redmine_mermaid_macro/README.md) | 1.2.0 | Mermaid 巨集與 fenced block、動態預覽 | 本地改版，Taiki IKEGAME／MIT |
+| [redmine_mermaid_macro](redmine_mermaid_macro/README.md) | 1.2.4 | Mermaid 巨集與 fenced block、動態預覽 | 本地改版，Taiki IKEGAME／MIT |
 | [redmine_wysiwyg_editor](redmine_wysiwyg_editor/README.md) | 0.32.0 | 視覺化編輯器，保留 Mermaid/htmlview 來源標記 | 本地改版，Takeshi Nakamura／GPL-2.0 |
 
 版本來自各目錄的 init.rb；本地改版版本不代表上游發佈了相同功能。上游來源、原始文件與授權見 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
